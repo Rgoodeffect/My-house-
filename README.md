@@ -109,20 +109,45 @@ can also be set via `app.json`'s `expo.extra.apiUrl` if you'd rather not use an 
 
 ### 3. Building the real iOS/Android app
 
-The Expo Go app above is for development. To produce an installable app for the App Store /
-Google Play (or a device build for internal testing), use [EAS Build](https://docs.expo.dev/build/introduction/):
+The Expo Go app above is for development. To produce an installable app — for your own device,
+internal testing, or the App Store / Google Play — use
+[EAS Build](https://docs.expo.dev/build/introduction/). `mobile/eas.json` already defines three
+build profiles:
 
 ```bash
 cd mobile
 npm install -g eas-cli
-eas login
-eas build:configure
-eas build --platform ios       # requires an Apple Developer account
-eas build --platform android
+eas login              # creates a free Expo account if you don't have one
+eas init                # links this project to your Expo account (writes extra.eas.projectId into app.json)
 ```
 
-`app.json` already sets `ios.bundleIdentifier` and `android.package` — change
-`com.householdexpenses.app` to your own identifier before submitting to the stores.
+Then pick a profile depending on what you need:
+
+```bash
+# Quickest way to get a real, installable file without any store account:
+eas build --platform android --profile preview   # produces a .apk you can install directly on a phone
+eas build --platform ios --profile preview        # needs an Apple Developer account to sign, even for internal installs
+
+# Store-ready builds (app bundle for Play, signed archive for App Store):
+eas build --platform android --profile production
+eas build --platform ios --profile production
+```
+
+`app.json` already sets `ios.bundleIdentifier` and `android.package` to
+`com.householdexpenses.app` — change that to your own identifier before you submit to either
+store (it must be unique per store). Once a production build is ready, submit it with:
+
+```bash
+eas submit --platform android
+eas submit --platform ios
+```
+
+`eas submit` will prompt for the store credentials it needs (a Google Play service account key,
+or your Apple ID + app-specific password) the first time you run it.
+
+Before your first store submission, remember to point `EXPO_PUBLIC_API_URL` (or
+`app.json`'s `expo.extra.apiUrl`) at your **deployed** backend, not `localhost` — see the Render
+section above.
 
 ## Data model
 
