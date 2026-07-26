@@ -65,6 +65,31 @@ docker compose up --build
 
 Health check: `curl http://localhost:4000/health`.
 
+### 1b. Deploying the backend to Render (production)
+
+The repo includes a [`render.yaml`](./render.yaml) Blueprint that provisions everything needed —
+a free PostgreSQL database and a Docker web service for the API, wired together automatically:
+
+1. Push this repo to GitHub (already done if you're reading this from `Rgoodeffect/My-house-`).
+2. In the [Render dashboard](https://dashboard.render.com), click **New +** → **Blueprint**, and
+   point it at this repository. Render reads `render.yaml` and shows you the two resources it
+   will create (`household-expenses-db` + `household-expenses-api`).
+3. Click **Apply**. Render builds `server/Dockerfile`, generates a random `JWT_SECRET`, wires
+   `DATABASE_URL` to the new database automatically, and runs `prisma migrate deploy` on every
+   boot (baked into the Dockerfile's `CMD`) — no manual migration step needed.
+4. Once it's live, copy the service's public URL (e.g. `https://household-expenses-api.onrender.com`)
+   — that's your API base. The mobile app needs `<that URL>/api` as `EXPO_PUBLIC_API_URL`.
+
+Free-tier caveats worth knowing: the web service spins down after ~15 minutes idle (the first
+request after that takes a few extra seconds to wake it up), and Render deletes free Postgres
+databases after 30 days unless you upgrade the database to a paid plan. Fine for trying this
+out; upgrade both resources before relying on it day to day.
+
+Prefer to configure it by hand instead of the Blueprint? Create a PostgreSQL instance and a
+Docker-runtime Web Service pointing at `server/Dockerfile` (root/context: `server`) in the
+Render dashboard, then set `DATABASE_URL` (from the database's "Connect" tab), `JWT_SECRET`
+(any long random string), and `PORT=4000` as env vars.
+
 ### 2. Mobile app
 
 ```bash
