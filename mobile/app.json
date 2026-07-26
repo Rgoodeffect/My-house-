@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "مصروفات البيت",
+    "slug": "household-expenses",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "householdexpenses",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.householdexpenses.app"
+    },
+    "android": {
+      "package": "com.householdexpenses.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#1a6ef5",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-secure-store"
+      ]
+    ],
+    "extra": {
+      "apiUrl": "http://localhost:4000/api"
+    }
+  }
+}

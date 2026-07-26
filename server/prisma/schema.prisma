@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+
+  categories Category[]
+  expenses   Expense[]
+  budgets    Budget[]
+  balances   Balance[]
+}
+
+model Category {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name     String
+  icon     String
+  bg       String
+  position Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, name])
+}
+
+model Expense {
+  id       String  @id @default(cuid())
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name     String
+  amount   Float
+  category String
+  date     String // 'YYYY-MM-DD'
+  pay      String  @default("نقداً")
+  note     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+// key = 'total' for the whole-month budget, or a category name for a per-category limit
+model Budget {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthKey String // 'YYYY-MM'
+  key      String
+  amount   Float
+
+  @@unique([userId, monthKey, key])
+  @@index([userId, monthKey])
+}
+
+model Balance {
+  id         String @id @default(cuid())
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthKey   String // 'YYYY-MM'
+  salaryCash Float  @default(0)
+  salaryBank Float  @default(0)
+  prevCash   Float  @default(0)
+  prevBank   Float  @default(0)
+
+  @@unique([userId, monthKey])
+}
